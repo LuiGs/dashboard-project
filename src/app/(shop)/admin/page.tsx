@@ -4,7 +4,7 @@ import {
   IoPeopleOutline,
   IoShirtOutline,
   IoTicketOutline,
-  IoAnalyticsOutline,
+  IoBarChart,
 } from "react-icons/io5";
 
 export default function AdminPage() {
@@ -44,7 +44,7 @@ export default function AdminPage() {
             href="/admin/reports"
             className="flex items-center p-3 rounded-md transition-colors hover:bg-blue-700"
           >
-            <IoAnalyticsOutline size={24} />
+            <IoBarChart size={24} />
             <span className="ml-4 text-lg">Informes</span>
           </Link>
         </nav>

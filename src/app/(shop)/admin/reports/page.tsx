@@ -25,6 +25,9 @@ export default function AdminPage() {
     updatedAt: Date;
     userId: string;
     transactionId: string | null;
+    user: {
+      email: string;
+    };
   }
   
   interface ProductImage {
@@ -191,7 +194,7 @@ export default function AdminPage() {
               <table className="w-full text-left border">
                 <thead>
                   <tr>
-                    <th className="p-2 border-b">Nombre</th>
+                    <th className="p-2 border-b">Usuario</th>
                     <th className="p-2 border-b">ID Orden</th>
                     <th className="p-2 border-b">Fecha</th>
                   </tr>
@@ -199,7 +202,7 @@ export default function AdminPage() {
                 <tbody>
                   {paginatedOrders.map((order) => (
                     <tr key={order.id}>
-                      <td className="p-2 border-b">{`${order.OrderAddress?.firstName} ${order.OrderAddress?.lastName}`}</td>
+                      <td className="p-2 border-b">{order.user.email}</td>
                       <td className="p-2 border-b">{order.id}</td>
                       <td className="p-2 border-b">{new Date(order.createdAt).toLocaleDateString()}</td>
                     </tr>

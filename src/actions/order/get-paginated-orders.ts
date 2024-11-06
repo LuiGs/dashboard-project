@@ -26,6 +26,11 @@ export const getPaginatedOrders = async() => {
           firstName: true,
           lastName: true
         }
+      },
+      user: {
+        select: {
+          email: true
+        }
       }
     }
   })

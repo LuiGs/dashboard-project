@@ -32,7 +32,6 @@ interface FormInputs {
 export const ProductForm = ({ product, categories }: Props) => {
 
   const router = useRouter();
-
   const {
     handleSubmit,
     register,
@@ -56,6 +55,9 @@ export const ProductForm = ({ product, categories }: Props) => {
     const sizes = new Set(getValues("sizes"));
     sizes.has(size) ? sizes.delete(size) : sizes.add(size);
     setValue("sizes", Array.from(sizes));
+  };
+  const handleRedirect = () => {
+    router.push('/admin/products');
   };
 
   const onSubmit = async (data: FormInputs) => {
@@ -83,7 +85,7 @@ export const ProductForm = ({ product, categories }: Props) => {
       }
     }
 
-
+    
 
     const { ok, product:updatedProduct } = await createUpdateProduct(formData);
 
@@ -132,9 +134,10 @@ export const ProductForm = ({ product, categories }: Props) => {
         </div>
 
         <div className="flex flex-col mb-2">
-          <span>Price</span>
+          <span>Precio</span>
           <input
             type="number"
+            step="0.01" // Permite decimales
             className="p-2 border rounded-md bg-gray-200"
             {...register("price", { required: true, min: 0 })}
           />
@@ -150,7 +153,7 @@ export const ProductForm = ({ product, categories }: Props) => {
         </div>
 
         <div className="flex flex-col mb-2">
-          <span>Gender</span>
+          <span>Genero</span>
           <select
             className="p-2 border rounded-md bg-gray-200"
             {...register("gender", { required: true })}
@@ -178,7 +181,14 @@ export const ProductForm = ({ product, categories }: Props) => {
           </select>
         </div>
 
-        <button className="btn-primary w-full">Guardar</button>
+        <div className="flex space-x-2 w-full">
+          <button type="submit" className="btn-primary w-full">
+            Guardar
+          </button>
+          <button type="button" className="btn-primary w-full" onClick={handleRedirect}>
+            Regresar a Productos
+          </button>
+        </div>
       </div>
 
       {/* Selector de tallas y fotos */}
