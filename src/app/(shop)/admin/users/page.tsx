@@ -30,7 +30,7 @@ export default async function OrdersPage() {
       <div className="mb-10">
         <UsersTable users={ users } />
 
-        <Pagination totalPages={ 1 } />
+        <Pagination totalPages={ 1 } currentPage={1} setCurrentPage={() => {}} />
       </div>
     </>
   );

@@ -10,6 +10,8 @@ import { IoChevronBackOutline, IoChevronForwardOutline } from 'react-icons/io5';
 
 interface Props {
   totalPages: number;
+  currentPage: number;
+  setCurrentPage: (page: number) => void;
 }
 
 
@@ -32,7 +34,7 @@ export const Pagination = ({ totalPages }: Props) => {
 
   const createPageUrl = ( pageNumber: number | string ) => {
 
-    const params = new URLSearchParams( searchParams );
+    const params = new URLSearchParams( searchParams.toString() );
 
     if ( pageNumber === '...' ) {
       return `${ pathname }?${ params.toString() }`
