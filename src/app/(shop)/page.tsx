@@ -1,47 +1,51 @@
-export const revalidate = 60; // 60 segundos
+"use client";
 
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { getPaginatedProductsWithImages } from "@/actions";
+import { Pagination, ProductGrid, Title } from "@/components";
+import type { Product } from "@/interfaces/product.interface";
 
-import { redirect } from 'next/navigation';
-
-import { getPaginatedProductsWithImages } from '@/actions';
-import { Pagination, ProductGrid, Title } from '@/components';
-
-
+export const revalidate = 60; // 60 seconds
 
 interface Props {
   searchParams: {
-    page?: string; 
-  }
+    page?: string;
+  };
 }
 
+interface ProductWithImage extends Product {
+  ProductImage: { url: string }[];
+}
 
-export default async function Home({ searchParams }: Props) {
+export default function Home({ searchParams }: Props) {
+  const page = searchParams.page ? Number.parseInt(searchParams.page) : 1;
+  const [products, setProducts] = useState<ProductWithImage[]>([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [currentPage, setCurrentPage] = useState(page);
+  const router = useRouter();
 
-  const page = searchParams.page ? parseInt( searchParams.page ) : 1;
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const { products, totalPages } = await getPaginatedProductsWithImages({ page: currentPage });
+      setProducts(products as ProductWithImage[]);
+      setTotalPages(totalPages);
+    };
+    fetchProducts();
+  }, [currentPage]);
 
-  const { products, currentPage, totalPages } = await getPaginatedProductsWithImages({ page });
-
-
-  if ( products.length === 0 ) {
-    redirect('/');
-  }
-
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+    router.push(`/?page=${pageNumber}`);
+  };
 
   return (
     <>
-      <Title
-        title="Tienda"
-        subtitle="Todos los productos"
-        className="mb-2"
-      />
+      <Title title="Tienda" subtitle="Todos los productos" className="mb-2" />
 
-      <ProductGrid 
-        products={ products }
-      />
+      <ProductGrid products={products} />
 
-
-      <Pagination totalPages={ totalPages } />
-      
+      <Pagination totalPages={totalPages} currentPage={currentPage} onPageChange={handlePageChange} />
     </>
   );
 }

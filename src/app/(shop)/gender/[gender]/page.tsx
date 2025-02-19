@@ -1,66 +1,67 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { getPaginatedProductsWithImages } from "@/actions";
+import { Pagination, ProductGrid, Title } from "@/components";
+import { Gender } from "@prisma/client";
+import type { Product } from "@/interfaces/product.interface";
+
 export const revalidate = 60; // 60 segundos
-
-import { getPaginatedProductsWithImages } from '@/actions';
-import { Pagination, ProductGrid, Title } from '@/components';
-
-import { Gender } from '@prisma/client';
-import { redirect } from 'next/navigation';
-
-
 
 interface Props {
   params: {
     gender: string;
-  },
+  };
   searchParams: {
-    page?: string; 
-  }
+    page?: string;
+  };
 }
 
+interface ProductWithImage extends Product {
+  ProductImage: { url: string }[];
+}
 
-export default async function GenderByPage({ params, searchParams }: Props) {
-
+export default function GenderByPage({ params, searchParams }: Props) {
   const { gender } = params;
+  const page = searchParams.page ? Number.parseInt(searchParams.page) : 1;
+  const [products, setProducts] = useState<ProductWithImage[]>([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [currentPage, setCurrentPage] = useState(page);
+  const router = useRouter();
 
-  const page = searchParams.page ? parseInt( searchParams.page ) : 1;
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const { products, totalPages } = await getPaginatedProductsWithImages({
+          page: currentPage,
+          gender: gender as Gender,
+        });
+        setProducts(products as ProductWithImage[]);
+        setTotalPages(totalPages);
+      } catch (error) {
+        console.error("Error al obtener productos:", error);
+      }
+    };
+    fetchProducts();
+  }, [currentPage, gender]);
 
-  const { products, currentPage, totalPages } = await getPaginatedProductsWithImages({ 
-    page, 
-    gender: gender as Gender,
-  });
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+    router.push(`/gender/${gender}?page=${pageNumber}`);
+  };
 
-
-  if ( products.length === 0 ) {
-    redirect(`/gender/${ gender }`);
-  }
-  
-
-  const labels: Record<string, string>  = {
-    'men': 'para hombres',
-    'women': 'para mujeres',
-    'kid': 'para niños',
-    'unisex': 'para todos'
-  }
-
-  // if ( id === 'kids' ) {
-  //   notFound();
-  // }
-
-
+  const labels: Record<Gender, string> = {
+    men: "para hombres",
+    women: "para mujeres",
+    kid: "para niños",
+    unisex: "para todos",
+  };
   return (
     <>
-      <Title
-        title={`Artículos de ${ labels[gender] }`}
-        subtitle="Todos los productos"
-        className="mb-2"
-      />
-
-      <ProductGrid 
-        products={ products }
-      />
-
-      <Pagination totalPages={ totalPages }  />
-      
+      <Title title={`Artículos ${labels[gender as Gender] || ""}`} subtitle="Todos los productos" className="mb-2" />
+      <ProductGrid products={products} />
+      <Pagination totalPages={totalPages} currentPage={currentPage} onPageChange={handlePageChange} />
     </>
   );
 }

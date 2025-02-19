@@ -10,6 +10,8 @@ import type { User } from "@/interfaces"
 export default function UsersSection() {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState<string | null>(null)
+  const [totalPages, setTotalPages] = useState(1)
+  const [currentPage, setCurrentPage] = useState(1)
   const router = useRouter()
 
   useEffect(() => {
@@ -33,13 +35,11 @@ export default function UsersSection() {
     if (confirm("¿Estás seguro de que quieres eliminar este usuario?")) {
       setLoading(userId)
       const response = await deleteUser(userId)
-
       if (response.ok) {
         fetchUsers()
       } else {
         alert(response.message || "Error al eliminar el usuario")
       }
-
       setLoading(null)
     }
   }
@@ -47,6 +47,9 @@ export default function UsersSection() {
   const handleRoleChange = async (userId: string, newRole: string) => {
     await changeUserRole(userId, newRole)
     fetchUsers()
+  }
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
   }
 
   return (
@@ -113,7 +116,7 @@ export default function UsersSection() {
             ))}
           </tbody>
         </table>
-        <Pagination totalPages={1} currentPage={1} setCurrentPage={() => {}} />
+        <Pagination totalPages={totalPages} currentPage={currentPage} onPageChange={handlePageChange} />
       </div>
     </>
   )

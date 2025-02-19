@@ -8,6 +8,7 @@ import { deleteProduct, getPaginatedProductsWithImages, getProductBySlug } from 
 import { Pagination, Title } from "@/components"
 import { ProductForm } from "./ProductForm"
 import type { Product, Category } from "@/interfaces/product.interface"
+import { FaEdit, FaTrash } from "react-icons/fa"
 
 interface ProductWithImage extends Product {
   ProductImage: { url: string }[]
@@ -61,19 +62,22 @@ export default function ProductsSection() {
     fetchProducts(currentPage)
   }
 
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+  }
+
   if (editingProduct !== null) {
     return <ProductForm product={editingProduct} categories={categories} onClose={handleFormClose} />
   }
 
   return (
     <>
-      <Title title="Dashboard de productos" />
-      <div className="flex justify-end mb-5">
+      <div className="flex justify-between items-center mb-4">
+        <Title title="Lista de productos" />
         <button onClick={handleNewProduct} className="btn-primary">
-          Nuevo producto
+          Agregar producto
         </button>
       </div>
-
       <div className="mb-10">
         <table className="min-w-full">
           <thead className="bg-gray-200 border-b">
@@ -96,7 +100,9 @@ export default function ProductsSection() {
               <th scope="col" className="text-sm font-medium text-gray-900 px-6 py-4 text-left">
                 Tallas
               </th>
-              <th scope="col" className="text-sm font-medium text-gray-900 px-6 py-4 text-left"></th>
+              <th scope="col" className="text-sm font-medium text-gray-900 px-6 py-4 text-left">
+                Acciones
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -125,23 +131,24 @@ export default function ProductsSection() {
                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-2 rounded mr-2"
                     onClick={() => handleEdit(product.slug)}
                   >
-                    Editar
+                    <FaEdit />
                   </button>
                   <button
                     className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-2 rounded"
                     onClick={() => handleDelete(product.id)}
                     disabled={loading === product.id}
                   >
-                    {loading === product.id ? "Eliminando..." : "Eliminar"}
+                    {loading === product.id ? "Eliminando..." :<FaTrash />}
                   </button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-        <Pagination totalPages={totalPages} />
+        <Pagination totalPages={totalPages} currentPage={currentPage} onPageChange={handlePageChange} />
       </div>
     </>
   )
 }
+
 

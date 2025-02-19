@@ -16,18 +16,14 @@ export default function UserSection() {
   const [editingUser, setEditingUser] = useState<Partial<User> | null>(null)
 
   useEffect(() => {
-    fetchUsers()
-  }, []) // Removed currentPage dependency
+    fetchUsers(currentPage)
+  }, [currentPage])
 
-  const fetchUsers = async () => {
-    const result = await getPaginatedUsers()
+  const fetchUsers = async (page: number) => {
+    const result = await getPaginatedUsers(page)
     if (result && "users" in result) {
-      if (result.users) {
-        setUsers(result.users)
-      } else {
-        setUsers([])
-      }
-      setTotalPages("totalPages" in result && typeof result.totalPages === "number" ? result.totalPages : 1)
+      setUsers(result.users || [])
+      setTotalPages(result.totalPages || 1)
     } else {
       console.error("Failed to fetch users")
     }
@@ -39,7 +35,7 @@ export default function UserSection() {
       const response = await deleteUser(userId)
 
       if (response.ok) {
-        fetchUsers()
+        fetchUsers(currentPage)
       } else {
         alert(response.message || "Error al eliminar el usuario")
       }
@@ -59,12 +55,16 @@ export default function UserSection() {
 
   const handleFormClose = () => {
     setEditingUser(null)
-    fetchUsers()
+    fetchUsers(currentPage)
   }
 
   const handleRoleChange = async (userId: string, newRole: string) => {
     await changeUserRole(userId, newRole)
-    fetchUsers()
+    fetchUsers(currentPage)
+  }
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
   }
 
   if (editingUser !== null) {
@@ -75,20 +75,15 @@ export default function UserSection() {
       </>
     )
   }
-  interface Props {
-    totalPages: number;
-    currentPage: number;
-    setCurrentPage: (page: number) => void;
-  }
+
   return (
     <>
-      <Title title="Dashboard de usuarios" />
-      <div className="flex justify-end mb-5">
+      <div className="flex justify-between items-center mb-4">
+        <Title title="Lista de usuarios" />
         <button onClick={handleNewUser} className="btn-primary">
-          Nuevo usuario
+          Registrar usuario
         </button>
       </div>
-
       <div className="mb-10">
         <table className="min-w-full">
           <thead className="bg-gray-200 border-b">
@@ -141,7 +136,7 @@ export default function UserSection() {
             ))}
           </tbody>
         </table>
-        <Pagination totalPages={totalPages} currentPage={currentPage} setCurrentPage={setCurrentPage} />
+        <Pagination totalPages={totalPages} currentPage={currentPage} onPageChange={handlePageChange} />
       </div>
     </>
   )

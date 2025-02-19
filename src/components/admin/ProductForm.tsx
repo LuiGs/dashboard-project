@@ -184,11 +184,11 @@ export const ProductForm = ({ product, categories, onClose }: Props) => {
         </div>
       </div>
 
-      <div className="flex space-x-2 w-full">
-        <button type="submit" className="btn-primary w-full">
+      <div className="flex space-x-2">
+        <button type="submit" className="btn-primary ">
           Guardar
         </button>
-        <button type="button" className="btn-primary w-full" onClick={onClose}>
+        <button type="button" className="btn-primary " onClick={onClose}>
           Cancelar
         </button>
       </div>
