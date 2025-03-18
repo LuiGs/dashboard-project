@@ -8,9 +8,12 @@ export interface Product {
   slug: string;
   tags: string[];
   title: string;
-  //todo: type: Type;
-  gender: Category;
+  gender: 'men' | 'women' | 'kid' | 'unisex'; // Si estás usando 'gender' para el público objetivo
+  categoryId: string; // Agrega este campo
+  // Optionally, include category details
+  category?: { id: string; name: string };
 }
+
 
 export interface CartProduct {
   id: string;

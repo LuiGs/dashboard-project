@@ -12,7 +12,8 @@ interface ProductToOrder {
 
 export const placeOrder = async (
   productIds: ProductToOrder[],
-  address: Address
+  address: Address,
+  discountCodeId: string // Añadir el discountCodeId
 ) => {
   const session = await auth();
   const userId = session?.user.id;
@@ -100,6 +101,7 @@ export const placeOrder = async (
           subTotal: subTotal,
           tax: tax,
           total: total,
+          discountCodeId: discountCodeId, // Añadir el discountCodeId
 
           OrderItem: {
             createMany: {

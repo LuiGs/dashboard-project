@@ -1,21 +1,22 @@
 "use client"
 
 import { useForm } from "react-hook-form"
-import type { Product, Size, Category } from "@/interfaces/product.interface"
+import type { Product, Size } from "@/interfaces/product.interface"
 import clsx from "clsx"
 import { createUpdateProduct, deleteProductImage } from "@/actions"
 import { ProductImage as ProductImageComponent } from "@/components"
 
 interface Props {
   product: Partial<Product & { ProductImage?: { url: string }[] }>
-  categories: Category[]
+  categories: { id: string, name: string }[]
   onClose: () => void
 }
 
 const sizes: Size[] = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"]
 
 interface FormInputs extends Omit<Product, "images"> {
-  images?: FileList
+  images?: FileList;
+  // Eliminar categoryId
 }
 
 export const ProductForm = ({ product, categories, onClose }: Props) => {
@@ -29,9 +30,10 @@ export const ProductForm = ({ product, categories, onClose }: Props) => {
   } = useForm<FormInputs>({
     defaultValues: {
       ...product,
-      tags: product.tags,
+      // Eliminar categoryId
+      tags: product.tags ?? [],
       sizes: product.sizes ?? [],
-      images: undefined,
+      images: undefined
     },
   })
 
@@ -44,38 +46,39 @@ export const ProductForm = ({ product, categories, onClose }: Props) => {
   }
 
   const onSubmit = async (data: FormInputs) => {
-    const formData = new FormData()
-
-    const { images, ...productToSave } = data
-
+    const formData = new FormData();
+  
+    const { images, ...productToSave } = data;
+  
     if (product.id) {
-      formData.append("id", product.id)
+      formData.append("id", product.id);
     }
-
-    formData.append("title", productToSave.title)
-    formData.append("slug", productToSave.slug)
-    formData.append("description", productToSave.description)
-    formData.append("price", productToSave.price.toString())
-    formData.append("inStock", productToSave.inStock.toString())
-    formData.append("sizes", productToSave.sizes.join(","))
-    formData.append("tags", productToSave.tags.join(","))
-    formData.append("gender", productToSave.gender)
-
+  
+    formData.append("title", productToSave.title);
+    formData.append("slug", productToSave.slug);
+    formData.append("description", productToSave.description);
+    formData.append("price", productToSave.price.toString());
+    formData.append("inStock", productToSave.inStock.toString());
+    formData.append("sizes", productToSave.sizes.join(","));
+    formData.append("tags", Array.isArray(productToSave.tags) ? productToSave.tags.join(",") : productToSave.tags);
+    formData.append("gender", productToSave.gender);
+    // Eliminar categoryId
+  
     if (images) {
       for (let i = 0; i < images.length; i++) {
-        formData.append("images", images[i])
+        formData.append("images", images[i]);
       }
     }
-
-    const { ok, product: updatedProduct } = await createUpdateProduct(formData)
-
+  
+    const { ok, product: updatedProduct } = await createUpdateProduct(formData);
+  
     if (!ok) {
-      alert("Producto no se pudo actualizar")
-      return
+      alert("Producto no se pudo actualizar");
+      return;
     }
-
-    onClose()
-  }
+  
+    onClose();
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="grid px-5 mb-16 grid-cols-1 sm:px-0 sm:grid-cols-2 gap-3">
@@ -117,11 +120,10 @@ export const ProductForm = ({ product, categories, onClose }: Props) => {
           <span>Género</span>
           <select className="p-2 border rounded-md bg-gray-200" {...register("gender", { required: true })}>
             <option value="">[Seleccione]</option>
-            {categories.map((category) => (
-              <option key={category} value={category}>
-                {category}
-              </option>
-            ))}
+            <option value="men">Hombre</option>
+            <option value="women">Mujer</option>
+            <option value="kid">Niño</option>
+            <option value="unisex">Unisex</option>
           </select>
         </div>
 
@@ -184,15 +186,14 @@ export const ProductForm = ({ product, categories, onClose }: Props) => {
         </div>
       </div>
 
-      <div className="flex space-x-2">
-        <button type="submit" className="btn-primary ">
+      <div className="col-span-2 flex justify-end space-x-2 mt-4">
+        <button type="submit" className="btn-primary">
           Guardar
         </button>
-        <button type="button" className="btn-primary " onClick={onClose}>
+        <button type="button" className="btn-primary" onClick={onClose}>
           Cancelar
         </button>
       </div>
     </form>
   )
 }
-

@@ -14,8 +14,7 @@ interface Props {
 export default async function OrdersByIdPage({ params }: Props) {
   const { id } = params;
 
-  // Todo: Llamar el server action
-
+  // Llamar el server action
   const { ok, order } = await getOrderById(id);
 
   if (!ok) {
@@ -23,6 +22,10 @@ export default async function OrdersByIdPage({ params }: Props) {
   }
 
   const address = order!.OrderAddress;
+
+  // Calcular el monto del descuento
+  const discountAmount = (order!.discountCode?.discountAmount / 100) * order!.subTotal;
+  const totalAfterDiscount = order!.total - discountAmount;
 
   return (
     <div className="flex justify-center items-center mb-72 px-10 sm:px-0">
@@ -102,9 +105,14 @@ export default async function OrdersByIdPage({ params }: Props) {
               <span>Impuestos (15%)</span>
               <span className="text-right">{currencyFormat(order!.tax)}</span>
 
+              <span>Descuento ({order!.discountCode?.discountAmount}%)</span>
+              <span className="text-right">
+                {order!.discountCode ? `-${currencyFormat(discountAmount)}` : "No aplicado"}
+              </span>
+
               <span className="mt-5 text-2xl">Total:</span>
               <span className="mt-5 text-2xl text-right">
-                {currencyFormat(order!.total)}
+                {currencyFormat(totalAfterDiscount)}
               </span>
             </div>
 
@@ -112,7 +120,7 @@ export default async function OrdersByIdPage({ params }: Props) {
               {order?.isPaid ? (
                 <OrderStatus isPaid={order?.isPaid ?? false} />
               ) : (
-                <PayPalButton amount={order!.total} orderId={order!.id} />
+                <PayPalButton amount={totalAfterDiscount} orderId={order!.id} />
               )}
             </div>
           </div>

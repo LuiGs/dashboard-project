@@ -29,10 +29,15 @@ enum Role {
   user
 }
 
+enum DiscountType {
+  PERCENTAGE
+  FIXED_AMOUNT
+}
+
 model Category {
-  id      String    @id @default(uuid())
-  name    String    @unique
-  Product Product[]
+  id       String              @id @default(uuid())
+  name     String              @unique
+  Product  Product[]
 }
 
 model Product {
@@ -51,11 +56,13 @@ model Product {
   category   Category @relation(fields: [categoryId], references: [id])
   categoryId String
 
-  ProductImage ProductImage[]
-  OrderItem    OrderItem[]
+  ProductImage      ProductImage[]
+  OrderItem         OrderItem[]
+  discountCodes          DiscountCode[]
 
   @@index([gender])
 }
+
 
 model ProductImage {
   id  Int    @id @default(autoincrement())
@@ -127,6 +134,9 @@ model Order {
   OrderAddress OrderAddress?
 
   transactionId String?
+
+  discountCodeId String?
+  discountCode   DiscountCode? @relation(fields: [discountCodeId], references: [id], onDelete: Restrict)
 }
 
 model OrderItem {
@@ -141,6 +151,7 @@ model OrderItem {
 
   product   Product @relation(fields: [productId], references: [id])
   productId String
+  
 }
 
 model OrderAddress {
@@ -159,4 +170,25 @@ model OrderAddress {
 
   Order   Order  @relation(fields: [orderId], references: [id])
   orderId String @unique
+}
+
+model DiscountCode {
+  id             String           @id @default(uuid())
+  code           String           @unique
+  discountAmount Int
+  discountType   DiscountCodeType
+  uses           Int              @default(0)
+  isActive       Boolean          @default(true)
+  allProducts    Boolean          @default(false)
+  createdAt      DateTime         @default(now())
+  limit          Int?
+  expiresAt      DateTime?
+
+  products Product[]
+  orders   Order[]
+}
+
+enum DiscountCodeType {
+  PERCENTAGE
+  FIXED
 }

@@ -39,3 +39,10 @@ export * from './product/get-revenue-by-product';
 export * from './user/change-user-role';
 export * from './user/get-paginater-users';
 export * from './user/get-user-by-id';
+
+export * from './statistics/statistics';
+export * from './statistics/statistics-per-date';
+
+export * from './discountcodes'
+export * from './get-all-discount'
+// actions/index.ts
